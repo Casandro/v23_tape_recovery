@@ -1,29 +1,41 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <string.h>
 
-#define BLEN (16)
+#define MAXLEN (1024*1024)
+
+uint8_t buffer[MAXLEN];
 
 int main(int argc, char *argv[])
 {
 	char *prefix="";
 	if (argc==2) prefix=argv[1];
-	FILE *f=NULL;
-	int lt=-1;
+	double lt=0;
+	double t=0;
 	int o=0;
-	int t=0;
+	double start=0;
+	double end=0;
 	int cnt=0;
-	while (scanf("%d%d", &t, &o)==2) {
-		if ((lt<0) || (t-lt>BLEN*100)  || (o==0x0c)) {
-			char fn[256];
-			int time=t/19200;
-			snprintf(fn, sizeof(fn)-1, "%s%09d.cpt", prefix, t);
-			if (f!=NULL) fclose(f);
-			f=fopen(fn, "w");
+	while (scanf("%lf%d", &t, &o)==2) {
+		double td=t-lt;
+		if (td>0.05) {
+			end=lt;
+			if (cnt>0) {
+				char fn[256];
+				snprintf(fn, sizeof(fn)-1, "%s%04.2lf-%04.2lf.cpt", prefix, start,end);
+				FILE *f=fopen(fn, "w");
+				fwrite(buffer, 1, cnt, f);
+				fclose(f);
+				printf("File: %s contains %d oktets\n", fn, cnt);
+			}
+			start=t;
+			memset(buffer, 0, cnt);
+			cnt=0;
 		}
-		if (f!=NULL) fprintf(f, "%c", o);
-		printf("t: %d t-lt: %d\n", t, t-lt);
+		if (cnt<MAXLEN) {
+			buffer[cnt]=o;
+			cnt=cnt+1;
+		}
 		lt=t;
-		cnt=cnt+1;
 	}
-	if (f!=NULL) fclose(f);
-	printf("cnt: %d\n", cnt);
 }
