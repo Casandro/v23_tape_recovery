@@ -17,20 +17,27 @@ int main(int argc, char *argv[])
 	double buffer[BSIZE];
 	while (fread(buffer, sizeof(buffer), 1, stdin)>0) {
 		double obuf[BSIZE/2];
-		int n;
-		for (n=0; n<BSIZE/2; n++) {
+		for (int n=0; n<BSIZE/2; n++) {
 			//Determine vector
-			double m=(n%2)*2.0-1;
-			double i=buffer[n*2  ]*m;
-			double q=buffer[n*2+1]*m;
+			double i=buffer[n*2  ];
+			double q=buffer[n*2+1];
+			if ((n%2)==0) {
+				i=-i;
+				q=-q;
+			}
 			//Determine derivative
 			double i_=i-ooi;
-			double q_=i-ooq;
+			double q_=q-ooq;
 			
 			double f_=(i*q_)-(q*i_);
 			double p=sqr(i)+sqr(q);
+
+			double f=1;
 			
-			if (p>1e-3) obuf[n]=f_/p*0.1; else obuf[n]=0;
+			if (p>5e-3) f=f_/p; else f=1;
+			if (f>1.5) f=1.5;
+			if (f<-1.5) f=-1.5;
+			obuf[n]=f*0.1;
 
 			ooi=oi;
 			oi=i;
