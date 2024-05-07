@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
 {
 	double i[3];
 	double q[3];
-	for (int n=0; n<2; n++) {
+	for (int n=0; n<3; n++) {
 		i[n]=0; q[n]=0;
 	}
 	double pavg=1e-5;

@@ -52,7 +52,7 @@ before_find_start:
 	}
 	p=p+BLEN;
 	if (get_bit(p)==0) {
-		fprintf(stderr, "FRAMING broken @%.3lf\n", p*1.0/SRATE);
+		printf("%.3lf %d\n", start_bit*1.0/SRATE, byte+256);
 		p=start_bit;
 		goto before_find_start;
 	} 
@@ -72,8 +72,9 @@ int main(int argc, char *argv[])
 	size_t fs=ftell(f);
 	fseek(f, 0L, SEEK_SET);
 	int16_t *samples=malloc(fs);
-	fread(samples, fs, 1, f);
+	size_t rr=fread(samples, fs, 1, f);
 	fclose(f);
+	if (rr!=fs) fprintf(stderr, "return of fread broken\n");
 	cnt=fs/sizeof(int16_t);
 
 	bits=malloc(cnt);
